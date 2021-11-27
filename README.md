@@ -1,2 +1,2 @@
-# tejas enterpises back end
+# tejas enterprises back end
 Backend services of Tejas Enterprises application developed in NodeJS &amp; Express.js with MongoDB
