@@ -7,7 +7,7 @@ const router = express.Router();
 const Employee = require('../../models/Employee');
 
 // GET EMPLOYEES (default active) WITH filter, sorting & pagination
-router.get('/', (req, resp) => {
+router.get('/', auth, (req, resp) => {
     console.log('req.query: ', req.query);
     let filter = {};
     filter.is_active = req.query.is_active || true;
@@ -41,7 +41,7 @@ router.get('/', (req, resp) => {
 
 
 // GET SINGLE EMPLOYEE BY ID
-router.get('/:id', (req, resp) => {
+router.get('/:id', auth, (req, resp) => {
     Employee.findById(req.params.id).exec().then(employee => {
         return resp.status(200).json(employee);
     }).catch(error => {
@@ -56,7 +56,7 @@ router.get('/:id', (req, resp) => {
 
 
 // SAVE EMPLOYEE
-router.post('/', (req, resp) => {
+router.post('/', auth, (req, resp) => {
     // First check if the conact with firstname, lastname and mobile number already exists.
     Employee.findOne({ 'personal.name': req.body.personal.name, 'personal.email': req.body.personal.email, 'personal.phone.primary': req.body.personal.phone.primary, is_active: true })
         .exec()
@@ -112,7 +112,7 @@ router.post('/', (req, resp) => {
 
 
 // UPDATE EMPLOYEE
-router.put('/:id', (req, resp) => {
+router.put('/:id', auth, (req, resp) => {
     Employee.findByIdAndUpdate(req.params.id, req.body).exec().then(employee => {
         return resp.status(200).json(employee);
     }).catch(error => {
@@ -124,7 +124,7 @@ router.put('/:id', (req, resp) => {
 
 
 // DELETE EMPLOYEE (Hard delete. This will delete the entire employee detail. Only application admin should be allowed to perform this action )
-router.delete('/:id', (req, resp) => {
+router.delete('/:id', auth, (req, resp) => {
     Employee.findByIdAndRemove(req.params.id).exec().then(employee => {
         return resp.status(200).json(employee);
     }).catch(error => {
