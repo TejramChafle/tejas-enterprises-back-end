@@ -1,2 +1,2 @@
-# PersonalManagerV3Services
-Backend services of PersonalManagerV3 application developed in NodeJS &amp; Express.js with MongoDB
+# tejas enterprises back end
+Backend services of Tejas Enterprises application developed in NodeJS &amp; Express.js with MongoDB
