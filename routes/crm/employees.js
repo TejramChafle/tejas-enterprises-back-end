@@ -3,12 +3,12 @@ const mongoose = require('mongoose');
 const auth = require('../../auth');
 const bcrypt = require('bcrypt');
 const router = express.Router();
-
+const authorization = require('./auth');
 const Employee = require('../../models/Employee');
 
 // GET EMPLOYEES (default active) WITH filter, sorting & pagination
 router.get('/', auth, (req, resp) => {
-    console.log('req.query: ', req.query);
+    // console.log('req.query: ', req.query);
     let filter = {};
     filter.is_active = req.query.is_active || true;
     if (req.query.name) filter['personal.name'] = new RegExp('.*' + req.query.name + '.*', 'i');
@@ -20,7 +20,7 @@ router.get('/', auth, (req, resp) => {
 
     if (req.query.supervisor) filter['professional.supervisor._id'] = req.query.supervisor;
 
-    console.log(filter);
+    // console.log(filter);
 
     Employee.paginate(filter,
         {
@@ -56,7 +56,8 @@ router.get('/:id', auth, (req, resp) => {
 
 
 // SAVE EMPLOYEE
-router.post('/', auth, (req, resp) => {
+router.post('/', auth, async (req, resp) => {
+    // console.log({req});
     // First check if the conact with firstname, lastname and mobile number already exists.
     Employee.findOne({ 'personal.name': req.body.personal.name, 'personal.email': req.body.personal.email, 'personal.phone.primary': req.body.personal.phone.primary, is_active: true })
         .exec()
@@ -69,11 +70,11 @@ router.post('/', auth, (req, resp) => {
                 });
             } else {
                 // Since the user doesn't exist, then save the detail
-                console.log(req.body);
+                // console.log(req.body);
                 const now = Date.now();
 
                 bcrypt.hash(req.body.credentials.password, 10, (err, hashResult) => {
-                    console.log('result of hash', hashResult);
+                    // console.log('result of hash', hashResult);
                     // Save employee information
                     const employee_data = {
                         personal: req.body.personal,
@@ -90,7 +91,24 @@ router.post('/', auth, (req, resp) => {
                     employee.created_by = req.body.created_by;
                     employee.updated_by = req.body.updated_by;
                     employee.save().then(employeeResult => {
-                        console.log('employeeResult', employeeResult);
+                        // console.log('employeeResult', employeeResult);
+                        // Registration mail 
+                        const mailDetails = {
+                            from: process.env.MAIL_SENDER_ID,
+                            to: req.body.credentials.username,
+                            subject: "Registration successful with Tejas Enterprises",
+                            text: "Hi " + req.body.personal.name + ",\nYou have been registered with Tejas Enterprises as "
+                                + req.body.professional.designation + ". We welcome you onboard.\n\n"
+                                + "Please find the authentication detail to login to Tejas Enterprises software:\n"
+                                + "URL: https://tejasenterprises.biz\n"
+                                + "Username: " + req.body.credentials.username + "\n"
+                                + "Password: " + req.body.credentials.password + "\n\n"
+                                + "If should you change your password, please use forgot password process using above mentioned email id used for username.\n"
+                                + "For any queries, please feel free to write us. We would be happy to help you.\n"
+                                + "Thank you.\n\nRegards, \nSupport Team\nTejas Enterprises\nhttps://tejasenterprises.biz\n"
+                        };
+                        // Send registration mail
+                        authorization.sendMail(resp, mailDetails);
                         return resp.status(201).json({
                             message: 'Employee created successfully.',
                             result: employeeResult
@@ -113,7 +131,20 @@ router.post('/', auth, (req, resp) => {
 
 // UPDATE EMPLOYEE
 router.put('/:id', auth, (req, resp) => {
-    Employee.findByIdAndUpdate(req.params.id, req.body).exec().then(employee => {
+    /* Employee.findByIdAndUpdate(req.params.id, req.body).exec().then(employee => {
+        return resp.status(200).json(employee);
+    }).catch(error => {
+        // 500 : Internal Sever Error. The request was not completed. The server met an unexpected condition.
+        return resp.status(500).json(error);
+    }); */
+
+    const params = {
+        personal: req.body.personal,
+        professional: req.body.professional,
+        updated_date: req.body.updated_date,
+        updated_by: req.body.updated_by
+    };
+    Employee.findByIdAndUpdate(req.params.id, params).exec().then(employee => {
         return resp.status(200).json(employee);
     }).catch(error => {
         // 500 : Internal Sever Error. The request was not completed. The server met an unexpected condition.
