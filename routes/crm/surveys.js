@@ -16,6 +16,7 @@ router.get('/', auth, (req, resp) => {
     if (req.query.date) filter['created_date'] = req.query.date;
     if (req.query.surveyor) filter['surveyor'] = req.query.surveyor;
     if (req.query.status) filter['status'] = req.query.status;
+    if (req.query.supervisor) filter['supervisor'] = req.query.supervisor;
 
     console.log('req.filter: ', filter);
     
@@ -56,7 +57,8 @@ router.post('/', auth, (req, resp) => {
         water: req.body.water,
         solar: req.body.solar,
         plumber: req.body.plumber,
-        engineer: req.body.engineer
+        engineer: req.body.engineer,
+        supervisor: req.body.surveyor.professional.supervisor._id
     }
 
     let survey = new Survey(survey_data);

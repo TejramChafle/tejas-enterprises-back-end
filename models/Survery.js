@@ -28,11 +28,15 @@ const SurveySchema = new mongoose.Schema({
         type: Object,
         required: false
     },
-    
     // soft delete flag
     is_active: {
         type: Boolean,
         default: true
+    },
+    supervisor: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Employee',
+        required: true
     },
     // created by user id
     created_by: {
