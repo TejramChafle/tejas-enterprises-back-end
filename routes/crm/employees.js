@@ -17,7 +17,7 @@ router.get('/', auth, (req, resp) => {
     if (req.query.email) filter['professional.email'] = new RegExp('.*' + req.query.email + '.*', 'i');
     if (req.query.city) filter['professional.area.city'] = new RegExp('.*' + req.query.city + '.*', 'i');
     if (req.query.gender) filter['personal.gender'] = req.query.gender;
-
+    if (req.query.designation) filter['professional.designation'] = req.query.designation;
     if (req.query.supervisor) filter['professional.supervisor._id'] = req.query.supervisor;
 
     // console.log(filter);
@@ -59,14 +59,14 @@ router.get('/:id', auth, (req, resp) => {
 router.post('/', auth, async (req, resp) => {
     // console.log({req});
     // First check if the conact with firstname, lastname and mobile number already exists.
-    Employee.findOne({ 'personal.name': req.body.personal.name, 'personal.email': req.body.personal.email, 'personal.phone.primary': req.body.personal.phone.primary, is_active: true })
+    Employee.findOne({ 'personal.email': req.body.personal.email, is_active: true })
         .exec()
         .then(employee => {
             // If the employee with firstname, lastname and mobile number already exists, then return error
             if (employee) {
                 // 409 : Conflict. The request could not be completed because of a conflict.
                 return resp.status(409).json({
-                    message: 'The employee with name ' + req.body.personal.name + ', email ' + req.body.personal.email + ' and mobile number ' + req.body.personal.phone.primary + ' already exist.'
+                    message: 'The employee with email ' + req.body.personal.email + ' already resistered in system.'
                 });
             } else {
                 // Since the user doesn't exist, then save the detail
@@ -97,7 +97,7 @@ router.post('/', auth, async (req, resp) => {
                             from: process.env.MAIL_SENDER_ID,
                             to: req.body.credentials.username,
                             subject: "Registration successful with Tejas Enterprises",
-                            text: "Hi " + req.body.personal.name + ",\nYou have been registered with Tejas Enterprises as "
+                            text: "Hi " + req.body.personal.firstName + ",\nYou have been registered with Tejas Enterprises as "
                                 + req.body.professional.designation + ". We welcome you onboard.\n\n"
                                 + "Please find the authentication detail to login to Tejas Enterprises software:\n"
                                 + "URL: https://tejasenterprises.biz\n"

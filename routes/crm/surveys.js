@@ -49,8 +49,7 @@ router.get('/:id', auth, (req, resp) => {
 
 // SAVE SURVEY
 router.post('/', auth, (req, resp) => {
-    console.log(req.body);
-
+    // console.log('Save survey params: ', req.body);
     const survey_data = {
         surveyor: req.body.surveyor._id,
         property: req.body.property,
@@ -58,7 +57,7 @@ router.post('/', auth, (req, resp) => {
         solar: req.body.solar,
         plumber: req.body.plumber,
         engineer: req.body.engineer,
-        supervisor: req.body.surveyor.professional.supervisor._id
+        supervisor: req.body.surveyor.professional.supervisor?._id
     }
 
     let survey = new Survey(survey_data);
@@ -69,7 +68,7 @@ router.post('/', auth, (req, resp) => {
     survey.updated_by = req.body.updated_by
 
     survey.save().then(result => {
-        console.log(result);
+        // console.log('result: ', result);
         return resp.status(201).json({
             message: 'Survey information saved successfully',
             result: result
