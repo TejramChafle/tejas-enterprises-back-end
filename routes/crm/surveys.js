@@ -13,10 +13,19 @@ router.get('/', auth, (req, resp) => {
     filter.is_active = req.query.is_active || true;
     if (req.query.owner) filter['property.owner.name'] = new RegExp('.*' + req.query.owner + '.*', 'i');
     if (req.query.city) filter['property.owner.address.city'] = new RegExp('.*' + req.query.city + '.*', 'i');
-    if (req.query.date) filter['created_date'] = req.query.date;
+    // if (req.query.date) filter['created_date'] = req.query.date;
     if (req.query.surveyor) filter['surveyor'] = req.query.surveyor;
     if (req.query.status) filter['status'] = req.query.status;
     if (req.query.supervisor) filter['supervisor'] = req.query.supervisor;
+    if (req.query.date) {
+        const created_date = new Date(req.query.date);
+        const created_date_gte = new Date(req.query.date);
+        const created_date_lte = new Date(created_date.setDate(created_date.getDate() + 1));
+        filter['created_date'] = {
+            $lte: created_date_lte,
+            $gte: created_date_gte
+        };
+    }
 
     console.log('req.filter: ', filter);
     
@@ -49,7 +58,7 @@ router.get('/:id', auth, (req, resp) => {
 
 // SAVE SURVEY
 router.post('/', auth, (req, resp) => {
-    // console.log('Save survey params: ', req.body);
+    console.log('Save survey params: ', req.body);
     const survey_data = {
         surveyor: req.body.surveyor._id,
         property: req.body.property,
@@ -57,13 +66,15 @@ router.post('/', auth, (req, resp) => {
         solar: req.body.solar,
         plumber: req.body.plumber,
         engineer: req.body.engineer,
-        supervisor: req.body.surveyor.professional.supervisor?._id
+        supervisor: req.body.surveyor.professional.supervisor?._id,
+        created_date: req.body.created_date,
+        updated_date: req.body.updated_date
     }
 
     let survey = new Survey(survey_data);
     survey._id = new mongoose.Types.ObjectId();
-    survey.created_date = Date.now();
-    survey.updated_date = Date.now();
+    // survey.created_date = Date.now();
+    // survey.updated_date = Date.now();
     survey.created_by = req.body.created_by,
     survey.updated_by = req.body.updated_by
 
