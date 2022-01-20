@@ -11,12 +11,20 @@ router.get('/', auth, (req, resp) => {
     console.log('req.query: ', req.query);
     let filter = {};
     filter.is_active = req.query.is_active || true;
-    if (req.query.owner) filter['property.owner.name'] = new RegExp('.*' + req.query.owner + '.*', 'i');
+    if (req.query.owner) filter['property.owner.firstName'] = new RegExp('.*' + req.query.owner + '.*', 'i');
     if (req.query.city) filter['property.owner.address.city'] = new RegExp('.*' + req.query.city + '.*', 'i');
-    // if (req.query.date) filter['created_date'] = req.query.date;
+    if (req.query.taluka) filter['property.owner.address.taluka'] = new RegExp('.*' + req.query.taluka + '.*', 'i');
     if (req.query.surveyor) filter['surveyor'] = req.query.surveyor;
-    if (req.query.status) filter['status'] = req.query.status;
+    if (req.query.type) filter['property.status.type'] = req.query.type;
     if (req.query.supervisor) filter['supervisor'] = req.query.supervisor;
+
+    if (req.query.isInterestedInBuyingSolar) filter['solar.interestedToBuy'] = req.query.isInterestedInBuyingSolar;
+    if (req.query.isInterestedInBuyingWater) filter['water.interestedToBuy'] = req.query.isInterestedInBuyingWater;
+    if (req.query.takesEngineerService) filter['property.status.takesEngineerService'] = req.query.takesEngineerService;
+    if (req.query.takesPlumberService) filter['property.status.takesPlumberService'] = req.query.takesPlumberService;
+    if (req.query.needServicingWater) filter['water.needServicing'] = req.query.needServicingWater;
+    if (req.query.needServicingSolar) filter['solar.needServicing'] = req.query.needServicingSolar;
+
     if (req.query.date) {
         const created_date = new Date(req.query.date);
         const created_date_gte = new Date(req.query.date);
